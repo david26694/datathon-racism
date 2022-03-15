@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+*.csv
+*.tsv
+results/runs/
+.DS_Store
+spacy_test/
