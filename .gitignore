@@ -133,3 +133,5 @@ dmypy.json
 results/runs/
 .DS_Store
 spacy_test/
+racism/
+results/

@@ -5,14 +5,16 @@ import numpy as np
 import pandas as pd
 from datasets import load_dataset
 from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import train_test_split
 from transformers import (AutoModelForSequenceClassification, AutoTokenizer,
-                          DataCollatorWithPadding, Trainer, TrainingArguments)
+                          DataCollatorWithPadding, Trainer, TrainingArguments,
+                          pipeline)
 
 data_path = Path("data")
 hf_data = Path("hf_data")
+model_path = Path("racism")
 data_path.mkdir(exist_ok=True)
 hf_data.mkdir(exist_ok=True)
+model_path.mkdir(exist_ok=True)
 
 
 def sigmoid(x):
@@ -44,11 +46,15 @@ try:
 except FileNotFoundError:
     tweets_raw = pd.read_csv(
         "https://raw.githubusercontent.com/cicl2018/HateEvalTeam/master/Data%20Files/Data%20Files/%232%20Development-Spanish-A/train_dev_es_merged.tsv", sep="\t").rename(columns={"HS": "label"})
-# %% Split and save (prepare for HF)
-# train, validation = train_test_split(
-#     tweets_raw.loc[:, ["text", "label"]], random_state=42)
-# train.to_csv(hf_data / "train.csv", index=False)
-# validation.to_csv(hf_data / "validation.csv", index=False)
+
+    # Split and save (prepare for HF)
+    from sklearn.model_selection import train_test_split
+    train, validation = train_test_split(
+        tweets_raw.loc[:, ["text", "label"]], random_state=42)
+    train.to_csv(hf_data / "train.csv", index=False)
+    validation.to_csv(hf_data / "validation.csv", index=False)
+
+# %% Load ready for hf
 dataset = load_dataset(
     'csv', data_files={
         'train': str(hf_data / "train.csv"),
@@ -83,14 +89,18 @@ trainer.train()
 # %% Predict on validation
 preds = trainer.predict(tokenized_data["validation"])
 
-# %%
-preds.predictions[:, 1]
 
+# %% Print roc
+print(roc_auc_score(preds.label_ids, sigmoid(preds.predictions[:, 1])))
 
-# %%
-roc_auc_score(preds.label_ids, sigmoid(preds.predictions[:, 0]))
+# %% Save model and tokenizer
+trainer.save_model(model_path)
+tokenizer.save_pretrained(model_path)
 
-# %%
-roc_auc_score(preds.label_ids, sigmoid(preds.predictions[:, 1]))
+# %% Create pipeline
+p = pipeline(
+    "text-classification", model=str(model_path), tokenizer=str(model_path))
 
+# %% Save pipeline
+p.save_pretrained(model_path)
 # %%
