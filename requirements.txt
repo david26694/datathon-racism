@@ -7,3 +7,4 @@ autopep8
 stop-words
 detoxify==0.4.0
 tqdm
+scikit-lego
