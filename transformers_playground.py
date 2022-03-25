@@ -35,7 +35,9 @@ model = AutoModelForSequenceClassification.from_pretrained(
 
 
 def preprocess_function(examples):
-    return tokenizer(examples["text"], truncation=True)
+    txt = examples["text"]
+    # txt = [x.replace("gitano", "negro") for x in txt]
+    return tokenizer(txt, truncation=True, padding='max_length')
 
 
 # %% Load data
@@ -103,4 +105,6 @@ p = pipeline(
 
 # %% Save pipeline
 p.save_pretrained(model_path)
+# %%
+[x.replace("sirio", "moro") for x in dataset["train"]["text"]]
 # %%
