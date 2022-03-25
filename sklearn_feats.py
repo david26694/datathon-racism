@@ -2,6 +2,9 @@
 """
 Sklearn baseline
 """
+import re
+from collections import defaultdict
+from itertools import product
 from pathlib import Path
 
 import detoxify
@@ -21,6 +24,8 @@ from utils.misc import ToListTransformer
 
 data_path = Path("data")
 
+with open(data_path / "racist_words.txt", "r") as f:
+    racist_words = f.read().splitlines()
 
 # %%
 tweets_raw = pd.read_csv(data_path / "hate_speech_data.tsv", sep="\t")
@@ -45,6 +50,11 @@ stop_words = get_stop_words('spanish')
 new_text = tweets.text.apply(preprocess_line)
 new_text = preprocess_str(new_text, stop_words)
 tweets["processed_text"] = new_text
+tweets["has_racist_word"] = tweets.processed_text.str.contains(
+    "|".join(racist_words)).astype(int)
+
+tweets["n_racist_words"] = tweets.processed_text.str.count(
+    "|".join(racist_words)).astype(int)
 
 
 # %% Pipe creation
@@ -98,4 +108,20 @@ print(g.best_score_)
 # %%
 print(g.best_params_)
 
+# %%
+with (data_path / "racist_words_lemma.txt").open("r") as f:
+    racist_words_lemma = f.read().splitlines()
+
+with (data_path / "racist_sentences.txt").open("r") as f:
+    racist_sentences = f.read().splitlines()
+
+# %%
+racist_sentences_d = defaultdict(list)
+for word, sentence in product(racist_words_lemma, racist_sentences):
+    racist_sentences_d[word].append(
+        sentence.replace("<RACE>", f"los {word}s"))
+    racist_sentences_d[word].append(sentence.replace(
+        "<RACE>", f"las {re.sub('o$', 'a', word)}s"))
+# %%
+racist_sentences_d
 # %%
