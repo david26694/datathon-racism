@@ -28,12 +28,14 @@ bullying_feats = pd.read_csv(data_path / "bullying_scores.csv")
 dehate_feats = pd.read_csv(data_path / "dehatebert_feats.csv")
 xlm_feats = pd.read_csv(data_path / "xlm_roberta_feats.csv")
 detoxify = pd.read_csv(data_path / "detoxify_feats.csv")
+pysentimiento_feats = pd.read_csv(data_path / "pysentimiento_feats.csv")
 tweets = (
     tweets_raw
     .merge(bullying_feats, on="id", how="left")
     .merge(dehate_feats, on="id", how="left")
     .merge(xlm_feats, on="id", how="left")
     .merge(detoxify, on="id", how="left")
+    # .merge(pysentimiento_feats, on="id", how="left")
 )
 
 # %%
@@ -51,7 +53,7 @@ cols2remain = set(tweets.columns).difference(COLS2DROP)
 pipe = Pipeline(
     [
         ("ml_features", FeatureUnion([
-            ("grab_pysentimiento", ColumnTransformer([
+            ("grab_feats", ColumnTransformer([
                 ("selector", "passthrough", list(cols2remain))
             ])),
             ("spacy_pipeline", Pipeline([
@@ -66,7 +68,7 @@ pipe = Pipeline(
         ])),
         # ("scaler", StandardScaler()),
         # Might as well use log reg
-        ("model", GradientBoostingClassifier())
+        ("model", LogisticRegression())
     ]
 )
 

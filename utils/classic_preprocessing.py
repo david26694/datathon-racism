@@ -8,7 +8,8 @@ def preprocess_line(text):
         t = 'user_token' if t.startswith('@') and len(t) > 1 else t
         t = 'http_token' if t.startswith('http') else t
         new_text.append(t)
-    return " ".join(new_text)
+    joined = " ".join(new_text)
+    return joined.lower()
 
 
 def preprocess_str(x: pd.Series, remove_words: list) -> pd.Series:
