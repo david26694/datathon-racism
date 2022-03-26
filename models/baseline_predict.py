@@ -17,11 +17,12 @@ models_path = Path("models") / "artifacts"
 
 
 # %% Load evaluation data and preprocess
-eval_df = pd.read_csv(data_path / "evaluation_public.csv", delimiter="|")
+final_name = "evaluation_public"
+eval_df_raw = pd.read_csv(data_path / f"{final_name}.csv", delimiter="|")
 
 stop_words = get_stop_words('spanish')
 
-eval_df = process_text(eval_df, stop_words)
+eval_df = process_text(eval_df_raw, stop_words)
 
 X_eval = eval_df.processed_msg
 
@@ -31,7 +32,7 @@ with open(models_path / "log_reg_baseline_threshold.txt", "r") as f:
     th_opt = float(f.read())
 
 # %% Create submission file
-submission = eval_df.drop(columns=["processed_msg", "label"]).assign(
+submission = eval_df_raw.drop(columns=["label"]).assign(
     label=predict_racism(logreg.predict_proba(X_eval), th_opt)
 )
 
