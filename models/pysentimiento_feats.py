@@ -45,5 +45,5 @@ if __name__ == "__main__":
     # %% Save data
     (
         final_df
-        .to_csv(data_path / f"pysentimiento_{file_name}.csv", index=False, float_format="%.3f")
+        .to_csv(data_path / "features" / f"pysentimiento_{file_name}.csv", index=False, float_format="%.3f")
     )
