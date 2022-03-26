@@ -1,39 +1,23 @@
 # %%
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from datasets import load_dataset
-from sklearn.metrics import roc_auc_score
-from transformers import AutoTokenizer, DataCollatorWithPadding, AutoModelForSequenceClassification, pipeline, \
-    TrainingArguments, Trainer, DataCollatorForTokenClassification
-from pathlib import Path
-
-"""
+from sklearn.metrics import f1_score
 from transformers import (AutoModelForSequenceClassification, AutoTokenizer,
                           DataCollatorWithPadding, Trainer, TrainingArguments,
                           pipeline)
-"""
-
-data_path = Path("data")
-hf_data = Path("hf_data")
-model_path = Path("models") / "artifacts"
-data_path.mkdir(exist_ok=True)
-hf_data.mkdir(exist_ok=True)
-model_path.mkdir(exist_ok=True)
 
 data_path = Path("data")
 split_path = data_path / "split"
-submission_path = data_path / "submission"
 models_path = Path("models") / "artifacts"
 models_path.mkdir(exist_ok=True, parents=True)
-submission_path.mkdir(exist_ok=True, parents=True)
 
 
 train_df = pd.read_csv(split_path / "labels_racism_train.txt", delimiter="|")
 test_df = pd.read_csv(split_path / "labels_racism_test.txt", delimiter="|")
-eval_df = pd.read_csv(data_path / "evaluation_public.csv", delimiter="|")
-
-
 
 
 def sigmoid(x):
@@ -57,23 +41,25 @@ def preprocess_function(examples):
     # txt = [x.replace("gitano", "negro") for x in txt]
     return tokenizer(examples["text"], truncation=True, padding=True)
 
-# %% Load data
 
-label_key = {'non-racist': 0,'racist': 1, 'unknown': 2}
+# %% Load data
+label_key = {'non-racist': 0, 'racist': 1, 'unknown': 2}
 
 train_df["label"] = [label_key[item] for item in train_df.label]
 test_df["label"] = [label_key[item] for item in test_df.label]
 
 
-train_df.query("label != 2").drop(columns='labeller_id', axis=1).rename(columns ={'message':'text'}).to_csv('data/split/labels_racism_train.csv', index = False)
-test_df.query("label != 2").drop(columns='labeller_id', axis=1).rename(columns ={'message':'text'}).to_csv('data/split/labels_racism_test.csv', index = False)
+train_df.query("label != 2").drop(columns='labeller_id', axis=1).rename(columns={
+    'message': 'text'}).to_csv(split_path / 'labels_racism_train.csv', index=False)
+test_df.query("label != 2").drop(columns='labeller_id', axis=1).rename(columns={
+    'message': 'text'}).to_csv(split_path / 'labels_racism_test.csv', index=False)
 
 
 # %% Load ready for hf
-dataset = load_dataset(path = 'data/split', data_files={
-        'train': 'labels_racism_train.csv',
-        'validation': 'labels_racism_test.csv'
-    }
+dataset = load_dataset(path=str(split_path), data_files={
+    'train': 'labels_racism_train.csv',
+    'validation': 'labels_racism_test.csv'
+}
 )
 
 
@@ -109,7 +95,7 @@ preds = trainer.predict(tokenized_data["validation"])
 
 
 # %% Print roc
-print(roc_auc_score(preds.label_ids, sigmoid(preds.predictions[:, 1])))
+print(f1_score(preds.label_ids, sigmoid(preds.predictions[:, 1]) > 0.25))
 
 # %% Save model and tokenizer
 trainer.save_model(model_path)
