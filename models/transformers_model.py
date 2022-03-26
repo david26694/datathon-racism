@@ -55,14 +55,19 @@ model = AutoModelForSequenceClassification.from_pretrained(
 
 def preprocess_function(examples):
     # txt = [x.replace("gitano", "negro") for x in txt]
-    return tokenizer(examples["text"], truncation=True)
-
+    return tokenizer(examples["text"], truncation=True, padding=True)
 
 # %% Load data
 
+label_key = {'non-racist': 0,'racist': 1, 'unknown': 2}
 
-train_df.drop(columns='labeller_id', axis=1).rename(columns ={'message':'text'}).to_csv('data/split/labels_racism_train.csv', index = False)
-test_df.drop(columns='labeller_id', axis=1).rename(columns ={'message':'text'}).to_csv('data/split/labels_racism_test.csv', index = False)
+train_df["label"] = [label_key[item] for item in train_df.label]
+test_df["label"] = [label_key[item] for item in test_df.label]
+
+
+train_df.query("label != 2").drop(columns='labeller_id', axis=1).rename(columns ={'message':'text'}).to_csv('data/split/labels_racism_train.csv', index = False)
+test_df.query("label != 2").drop(columns='labeller_id', axis=1).rename(columns ={'message':'text'}).to_csv('data/split/labels_racism_test.csv', index = False)
+
 
 # %% Load ready for hf
 dataset = load_dataset(path = 'data/split', data_files={
@@ -86,7 +91,7 @@ training_args = TrainingArguments(
     weight_decay=0.01,
 )
 
-data_collator = DataCollatorForTokenClassification(tokenizer)
+# data_collator = DataCollatorForTokenClassification(tokenizer)
 
 trainer = Trainer(
     model=model,
