@@ -52,7 +52,10 @@ df.groupby(["message"], as_index=False).size(
 # %%
 repeated_messages = df.groupby(
     ["message"], as_index=False).size().query("size > 1").message.to_list()
+len(repeated_messages)
 
+# %%
+len(df.message.unique())
 # %%
 df.loc[df.message.isin(repeated_messages)].sort_values(
     ["message", "labeller_id"])
@@ -109,16 +112,19 @@ def labeller_bias(label_id):
 labellers = {}
 df_bias = pd.DataFrame()
 for i in range(1, 23):
+    bias = labeller_bias(i)
     df_bias = df_bias.append(
         pd.DataFrame(
             {
                 "labeller_id": [i],
-                "bias": [labeller_bias(i)]
+                "bias": [bias],
+                # "n_rows_shared": [n_rows_shared],
             }
         )
     )
 
 df_bias = df_bias.reset_index(drop=True)
+df_bias
 # %%
 racist_ratios.merge(df_bias, on="labeller_id").assign(
     unbiased_ratio=lambda x: x.ratio - x.bias)
