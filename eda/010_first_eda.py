@@ -1,8 +1,8 @@
 # %%
 from pathlib import Path
-
+import random
 import pandas as pd
-
+import re
 data_path = Path("data")
 
 pd.options.display.max_rows = 63
@@ -14,7 +14,7 @@ df = pd.read_csv(data_path / "labels_racism.csv", sep="|")
 df.label.value_counts()
 
 # %%
-with (data_path / "racist_data" / "racist_words.txt").open("r") as f:
+with (data_path / "racist_data" / "potential_racist_words.txt").open("r") as f:
     racist_words = f.read().splitlines()
 
 # %%
@@ -126,6 +126,27 @@ for i in range(1, 23):
 df_bias = df_bias.reset_index(drop=True)
 df_bias
 # %%
-racist_ratios.merge(df_bias, on="labeller_id").assign(
+rr = racist_ratios.merge(df_bias, on="labeller_id").assign(
     unbiased_ratio=lambda x: x.ratio - x.bias)
+
+rr['abs_bias'] = abs(rr['bias'])
 # %%
+
+words = pd.read_csv('predatathon/data/racist_words.txt', header = None)[0].to_list()
+
+
+# strong and week confidente regarding messages
+many_labels['total_reviews'] = many_labels['racists'] + many_labels['non_racists'] + many_labels['unknowns']
+cut = many_labels.total_reviews.quantile(0.80)
+strong = many_labels.query('total_reviews > @cut & abs(racists - non_racists) == total_reviews')
+weak = many_labels.query('total_reviews > @cut & abs(racists - non_racists - unknowns) < total_reviews-1')
+
+# replicate strong with other keys
+
+a = ["74 inmigrantes ilegales de Canarias vuelan a Alicante pero 60 quedan libres por el colapso del CETI",
+     "@muna_mnshira la que va repartiendo amor y prejuzga a la gente sin conocer nada de su vida. que fácil me resulta quintaros la careta “ainmigrantes negrossa"]
+
+strong['message'] = strong.message.str.lower().apply(lambda x: re.sub(pattern="|".join(words), repl= random.sample(words, 1)[0], string=x))
+
+# remove conflictive messages
+
