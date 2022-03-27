@@ -6,11 +6,11 @@ import numpy as np
 import pandas as pd
 from transformers import pipeline
 
-model_path = Path("models") / "artifacts" / "hf" / "v1"
+model_path = Path("models") / "artifacts" / "hf" / "v1_full"
 data_path = Path("data")
 submission_path = Path("data") / "submission"
 final_name = "evaluation_public"
-model_name = "hf_v1"
+model_name = "hf_v1_full"
 threshold = 0.5
 
 # Load pipeline
