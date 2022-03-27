@@ -11,7 +11,7 @@ data_path = Path("data")
 submission_path = Path("data") / "submission"
 final_name = "evaluation_public"
 model_name = "hf_v1_full"
-threshold = 0.5
+threshold = 0.34
 
 # Load pipeline
 p = pipeline("text-classification", model=str(model_path),

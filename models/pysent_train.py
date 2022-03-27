@@ -16,6 +16,7 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import GridSearchCV, cross_val_predict
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.preprocessing import FunctionTransformer
+from sklearn.svm import SVC
 from stop_words import get_stop_words
 from utils.classic_preprocessing import process_text
 from utils.thresholds import predict_racism, threshold_optimisation
@@ -27,7 +28,7 @@ models_path = Path("models") / "artifacts"
 models_path.mkdir(exist_ok=True, parents=True)
 submission_path.mkdir(exist_ok=True, parents=True)
 
-train_name = "log_reg_pysent"
+train_name = "svm_pysent"
 
 # %%
 train_df_raw = pd.read_csv(
@@ -79,7 +80,7 @@ pipe = Pipeline(
         ])),
         # ("scaler", StandardScaler()),
         # Might as well use log reg
-        ("model", LogisticRegression())
+        ("model", SVC(probability=True))
     ]
 )
 
@@ -131,6 +132,8 @@ f1_score(y_test, (test_preds == 'racist').astype(int))
 f1_score(y, (train_preds == 'racist').astype(int))
 
 # %% Save test predictions
+train_name
+# %% Save test predictions
 test_df["racist_score"] = g.predict_proba(X_test)[:, 1]
 test_df.drop(columns={"processed_msg"}).to_csv(
     submission_path / f"{train_name}_validation.csv", index=False)
@@ -145,10 +148,3 @@ pickle.dump(g, open(models_path / f"{train_name}.pkl", "wb"))
 # Store threshold
 with open(models_path / f"{train_name}_threshold.txt", "w") as f:
     f.write(str(optimal_threshold_full))
-# %% Load models and submit
-logreg = pickle.load(open(models_path / f"{train_name}.pkl", "rb"))
-with open(models_path / f"{train_name}_threshold.txt", "r") as f:
-    th_opt = float(f.read())
-
-# %% Create submission file
-predict_racism(logreg.predict_proba(X_test), th_opt)
