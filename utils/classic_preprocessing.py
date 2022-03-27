@@ -32,6 +32,15 @@ def preprocess_str(x: pd.Series, remove_words: list) -> pd.Series:
 
     return x
 
+def replace_quotes(x: pd.Series) -> pd.Series:
+    """
+    Replace quotes with the word "cita" to keep some info
+    """
+    regex = '"([^"]*)"'
+    x = x.str.replace(regex, "cita")
+
+    return x
+
 
 def process_text(df, stop_words, text="message"):
     df = df.copy()
