@@ -28,7 +28,7 @@ eval_df_raw["label"] = np.where(
     eval_df_raw["score"] > threshold, "racist", "non-racist")
 # %% Save data
 eval_df_raw.drop(columns=["score"]).to_csv(
-    submission_path / f"{model_name}.csv", index=False)
+    submission_path / f"{model_name}.csv", index=False, sep="|")
 
 eval_df_raw.to_csv(submission_path / f"{model_name}_probs.csv", index=False)
 
