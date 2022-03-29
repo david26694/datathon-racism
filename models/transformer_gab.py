@@ -52,6 +52,33 @@ train_df = pd.read_csv(input_path / "labels_racism_train.txt", delimiter="|")
 test_df = pd.read_csv(input_path / "labels_racism_test.txt", delimiter="|")
 
 
+def remove_weak(train_df):
+    """remove inconsistent messages"""
+    many_labels = (
+        train_df
+            .groupby("message", as_index=False)
+            .agg(
+            racists=('label', lambda x: (x == 'racist').sum()),
+            non_racists=('label', lambda x: (x == 'non-racist').sum()),
+            unknowns=('label', lambda x: (x == 'unknown').sum()),
+        )
+            .assign(
+            some_racist=lambda x: x.racists > 0,
+            some_non_racist=lambda x: x.non_racists > 0,
+            some_unknown=lambda x: x.unknowns > 0,
+        )
+    )
+
+    many_labels['total_reviews'] = many_labels['racists'] + many_labels['non_racists'] + many_labels['unknowns']
+
+    cut = many_labels.total_reviews.quantile(0.80)
+    weak = many_labels.query('total_reviews > @cut & racists > 1 & non_racists > 1')
+    train_df = train_df[~train_df.message.isin(weak['message'])]
+
+    return train_df
+
+train_df = remove_weak(train_df=train_df)
+
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
