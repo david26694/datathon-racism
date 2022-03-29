@@ -24,7 +24,7 @@ from utils.misc import ToListTransformer
 
 data_path = Path("data")
 
-with open(data_path / "racist_words.txt", "r") as f:
+with open(data_path / "potential_racist_words.txt", "r") as f:
     racist_words = f.read().splitlines()
 
 # %%

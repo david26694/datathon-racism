@@ -1,7 +1,10 @@
 # %%
 from pathlib import Path
-
 import pandas as pd
+
+
+data_path = Path("data")
+input_path = data_path / "split"
 
 data_path = Path("data")
 
@@ -14,8 +17,11 @@ df = pd.read_csv(data_path / "labels_racism.csv", sep="|")
 df.label.value_counts()
 
 # %%
-with (data_path / "racist_data" / "racist_words.txt").open("r") as f:
+with (data_path / "racist_data" / "potential_racist_words.txt").open("r") as f:
     racist_words = f.read().splitlines()
+
+# %%
+racist_words = pd.read_csv('predatathon/data/racist_words.txt', header = None)[0].to_list()
 
 # %%
 (
@@ -126,6 +132,8 @@ for i in range(1, 23):
 df_bias = df_bias.reset_index(drop=True)
 df_bias
 # %%
-racist_ratios.merge(df_bias, on="labeller_id").assign(
+rr = racist_ratios.merge(df_bias, on="labeller_id").assign(
     unbiased_ratio=lambda x: x.ratio - x.bias)
+
+rr['abs_bias'] = abs(rr['bias'])
 # %%
