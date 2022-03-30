@@ -27,13 +27,9 @@ p = pipeline("text-classification", model=str(model_path),
 
 # %% Load data
 eval_df_raw = pd.read_csv(data_path / f"{final_name}.csv", delimiter="|")
-train_df = pd.read_csv(data_path / "split" /
-                       "labels_racism_train.txt", delimiter="|")
-test_df = pd.read_csv(data_path / "split" /
-                      "labels_racism_test.txt", delimiter="|")
-
 
 # %%
+
 
 def add_max_score(df):
     df = df.copy()
@@ -47,47 +43,7 @@ def add_max_score(df):
 
 
 # %%
-train_df = add_max_score(train_df)
-
-# %%
-test_df = add_max_score(test_df)
-
-# %%
 eval_df_raw = add_max_score(eval_df_raw)
-
-# %%
-train_df.head()
-# %%
-
-optimal_threshold = safe_threshold_optimisation(
-    train_df.max_score,
-    (train_df.label == "racist").astype(int),
-)
-
-# %%
-f1_score(
-    (test_df.label == "racist").astype(int),
-    test_df.max_score > optimal_threshold,
-)
-
-# %%
-(
-    test_df
-    .query("label == 'racist'")
-    .query("max_score < @optimal_threshold")
-    .sort_values("max_score", ascending=True)
-    .to_csv("tests_david/errors_test.csv", index=False)
-)
-
-
-# %%
-(
-    test_df
-    .query("label == 'non-racist'")
-    .query("max_score > @optimal_threshold")
-    .sort_values("max_score", ascending=False)
-    .to_csv("tests_david/errors_test_2.csv", index=False)
-)
 
 # %% Predict and build label
 
@@ -100,8 +56,4 @@ eval_df_raw.drop(columns=["score", "max_score"]).to_csv(
 
 eval_df_raw.to_csv(submission_path / f"{model_name}_probs.csv", index=False)
 
-# %%
-model_name
-# %%
-test_df
 # %%
