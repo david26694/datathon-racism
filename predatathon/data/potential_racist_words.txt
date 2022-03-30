@@ -2,20 +2,32 @@ moro
 mora
 moros
 moras
+árabe
+árabes
 negro
 negra
 negros
 negras
+judío
+judía
+judíos
+judías
 gitano
 gitana
 gitanos
 gitanas
+chino
+china
+chinos
+chinas
 sudaca
 sudacas
 panchito
 panchitos
 panchitas
 panchita
+immigrante
+immigrantes
 negrito
 negritas
 negritos
@@ -36,15 +48,16 @@ mulato
 mulatos
 mulatas
 mulata
+sirio
+siria
+sirios
+sirias
 latino
 latinos
 latinas
 latina
+hispano
+hispana
+hispanos
+hispanas
 negrata
-menas
-menores inmigrantes
-inmigrantes ilegales
-inmigrantes de color
-inmigrantes magrebíes
-inmigrantes violadores
-inmigrantes negros
