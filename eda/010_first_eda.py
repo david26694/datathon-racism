@@ -1,7 +1,7 @@
 # %%
 from pathlib import Path
-import pandas as pd
 
+import pandas as pd
 
 data_path = Path("data")
 input_path = data_path / "split"
@@ -21,7 +21,8 @@ with (data_path / "racist_data" / "potential_racist_words.txt").open("r") as f:
     racist_words = f.read().splitlines()
 
 # %%
-racist_words = pd.read_csv('predatathon/data/racist_words.txt', header = None)[0].to_list()
+racist_words = pd.read_csv(
+    'predatathon/data/racist_words.txt', header=None)[0].to_list()
 
 # %%
 (
@@ -136,4 +137,28 @@ rr = racist_ratios.merge(df_bias, on="labeller_id").assign(
     unbiased_ratio=lambda x: x.ratio - x.bias)
 
 rr['abs_bias'] = abs(rr['bias'])
+# %%
+rr
+# %%
+(df.label == 'racist').astype(int)
+# %%
+train = pd.read_csv(data_path / "split" / "labels_racism_train.txt", sep="|")
+test = pd.read_csv(data_path / "split" / "labels_racism_test.txt", sep="|")
+
+# %%
+(
+    train
+    .merge(rr.loc[:, ["labeller_id", "bias"]], how="left", on="labeller_id")
+    .assign(label=lambda x: (x.label == 'racist').astype(int) - x.bias)
+    .drop(columns=["bias"])
+    .to_csv(data_path / "split" / "labels_racism_regression_train.txt", sep="|", index=False)
+)
+# %%
+(
+    test
+    .merge(rr.loc[:, ["labeller_id", "bias"]], how="left", on="labeller_id")
+    .assign(label=lambda x: (x.label == 'racist').astype(int) - x.bias)
+    .drop(columns=["bias"])
+    .to_csv(data_path / "split" / "labels_racism_regression_test.txt", sep="|", index=False)
+)
 # %%
