@@ -44,7 +44,7 @@ non-racist
 racist
 racist
 racist
-racist
+non-racist
 racist
 non-racist
 non-racist
@@ -58,7 +58,7 @@ racist
 racist
 non-racist
 non-racist
-racist
+non-racist
 non-racist
 non-racist
 racist
