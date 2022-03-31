@@ -38,3 +38,14 @@ hf_submission.merge(eval_df_raw, on="message", how="left",
                     suffixes=("_hf", "_manual")).query("label_x != label_y")
 
 # %%
+hf_scores = pd.read_csv(
+    submission_path / "hf_v1_full_probs.csv")
+
+# %%
+hf_scores.query("score > 0.34").sort_values("score").head(
+    10).to_csv("tests_david/test_limit.csv", index=False, sep="|")
+# %%
+hf_scores.query("score < 0.34").sort_values("score", ascending=False).head(
+    10).to_csv("tests_david/test_limit_2.csv", index=False, sep="|")
+
+# %%
