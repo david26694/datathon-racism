@@ -14,7 +14,7 @@ def split_sentence(x):
     return [x for x in splits if len(x) > 15]
 
 
-model_path = Path("models") / "artifacts" / "hf" / "v1_full"
+model_path = Path("models") / "artifacts" / "hf" / "v1"
 data_path = Path("data")
 submission_path = Path("data") / "submission"
 final_name = "evaluation_public"
@@ -70,6 +70,9 @@ f1_score(
     test_df.max_score > optimal_threshold,
 )
 
+# %%
+
+test_df.to_csv(submission_path / f"{model_name}_validation.csv", index=False)
 # %%
 (
     test_df
