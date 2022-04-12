@@ -17,8 +17,8 @@ df = pd.read_csv(data_path / "labels_racism.csv", sep="|")
 df.label.value_counts()
 
 # %%
-with (data_path / "racist_data" / "potential_racist_words.txt").open("r") as f:
-    racist_words = f.read().splitlines()
+# with (data_path / "racist_data" / "potential_racist_words.txt").open("r") as f:
+#     racist_words = f.read().splitlines()
 
 # %%
 racist_words = pd.read_csv(
@@ -82,6 +82,11 @@ many_labels = (
         some_unknown=lambda x: x.unknowns > 0,
     )
 )
+# %% STOP HERE
+df
+# %%
+df.groupby("message", as_index=False).size().sort_values("size")
+
 # %%
 many_labels.groupby(["some_racist", "some_non_racist",
                     "some_unknown"], as_index=False).size()
@@ -89,6 +94,10 @@ many_labels.groupby(["some_racist", "some_non_racist",
 many_labels.query("some_racist").query("some_non_racist").message.to_list()
 # %%
 many_labels.query("some_racist").query("some_non_racist")
+# %%
+df.groupby(["message", "labeller_id"]).filter(
+    lambda x: len(x) > 1).sort_values(["message", "labeller_id"])
+
 # %%
 
 
