@@ -64,5 +64,7 @@ for word, score_list in results.items():
         scores[word].append(score[1]["score"])
 # %% Average racist score
 pd.DataFrame(scores).mean().sort_values()
+pd.DataFrame(scores).median().sort_values()
 
 # %%
+
